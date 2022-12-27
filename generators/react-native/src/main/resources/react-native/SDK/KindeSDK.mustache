@@ -1,3 +1,5 @@
+{{>licenseInfo}}
+
 import jwt_decode from 'jwt-decode';
 import { Linking } from 'react-native';
 import Url from 'url-parse';
@@ -8,6 +10,12 @@ import { AuthStatus } from './Enums/AuthStatus.enum';
 import AuthorizationCode from './OAuth/AuthorizationCode';
 import { sessionStorage } from './Storage';
 import { checkAdditionalParameters, checkNotNull } from './Utils';
+
+{{#emitJSDoc}}/**
+* The KindeSDK module.
+* @module SDK/KindeSDK
+* @version {{projectVersion}}
+*/{{/emitJSDoc}}
 
 class KindeSDK {
     public issuer: string;

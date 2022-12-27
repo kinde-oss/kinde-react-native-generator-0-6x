@@ -112,7 +112,7 @@ public class KindeReactNativeGenerator extends AbstractTypeScriptClientCodegen {
 		outputFolder = "generated-code/typescript-fetch";
 		embeddedTemplateDir = templateDir = "typescript-fetch";
 
-		this.apiTemplateFiles.put("apis.mustache", ".ts");
+		this.apiTemplateFiles.put("api.mustache", ".ts");
 
 		this.addExtraReservedWords();
 
@@ -362,7 +362,7 @@ public class KindeReactNativeGenerator extends AbstractTypeScriptClientCodegen {
 		}
 
 		if (!withoutRuntimeChecks) {
-			this.modelTemplateFiles.put("models.mustache", ".ts");
+			this.modelTemplateFiles.put("model.mustache", ".ts");
 			typeMapping.put("date", "Date");
 			typeMapping.put("DateTime", "Date");
 		}

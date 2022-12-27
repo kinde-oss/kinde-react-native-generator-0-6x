@@ -1,5 +1,13 @@
+{{>licenseInfo}}
+
 import { UserProfile } from '../../types/KindeSDK';
 import BaseStore from './Base';
+
+{{#emitJSDoc}}/**
+* The Storage SDK module.
+* @module SDK/Storage
+* @version {{projectVersion}}
+*/{{/emitJSDoc}}
 
 class Storage extends BaseStore {
     constructor() {

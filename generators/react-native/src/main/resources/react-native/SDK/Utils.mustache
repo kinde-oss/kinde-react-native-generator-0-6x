@@ -1,9 +1,18 @@
+{{>licenseInfo}}
+
 import crypto, { LibWordArray } from 'crypto-js';
 import { InvalidTypeException } from '../common/exceptions/invalid-type.exception';
 import { PropertyRequiredException } from '../common/exceptions/property-required.exception';
 import { UnexpectedException } from '../common/exceptions/unexpected.exception';
 import { AdditionalParameters } from '../types/KindeSDK';
 import { AdditionalParametersAllow } from './constants';
+
+{{#emitJSDoc}}/**
+* The Utils SDK module.
+* @module SDK/Utils
+* @version {{projectVersion}}
+*/{{/emitJSDoc}}
+
 
 /**
  * It takes a string or a LibWordArray and returns a string
