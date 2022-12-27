@@ -21,7 +21,6 @@ do
     esac
 done
 
-OUT_GENERATOR="${GENERATOR_NAME/kinde-/''}"
 TEMAPLTE="$root/generators/$OUT_GENERATOR/src/main/resources/$OUT_GENERATOR"
 
 if [ ! -f "$EXECUTABLE" ]; then
@@ -34,5 +33,6 @@ export JAVA_OPTS="${JAVA_OPTS} -Xmx1024M -DloggerPath=conf/log4j.properties"
 (cd "$root" && ./mvnw -B package -Djacoco.skip=true -DskipTests=true -f "$root"/generators/${OUT_GENERATOR}/pom.xml)
 
 ags2="generate -t $TEMAPLTE $@"
+ags3="--additional-properties=usePromises=true"
 
-java $JAVA_OPTS -cp ${root}/generators/${OUT_GENERATOR}/target/${GENERATOR_NAME}-openapi-generator-1.0.0.jar:$EXECUTABLE org.openapitools.codegen.OpenAPIGenerator $ags2
+java $JAVA_OPTS -cp ${root}/generators/${OUT_GENERATOR}/target/${GENERATOR_NAME}-openapi-generator-1.0.0.jar:$EXECUTABLE org.openapitools.codegen.OpenAPIGenerator $ags2 $ags3
