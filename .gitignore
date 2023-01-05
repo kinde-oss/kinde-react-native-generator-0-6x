@@ -79,9 +79,5 @@ cabal.project.local
 generators/**/target
 out/
 
-# PHP
-samples/php/vendor
-samples/php/logs/app.log
-
-# React Native
-samples/react-native/node_modules
+# Sample folders
+samples

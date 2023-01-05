@@ -1,115 +1,150 @@
 ---
-title: Documentation for the rust-server Generator
+title: Documentation for the cpp-restbed-server-deprecated Generator
 ---
 
 ## METADATA
 
 | Property | Value | Notes |
 | -------- | ----- | ----- |
-| generator name | rust-server | pass this to the generate command after -g |
+| generator name | cpp-restbed-server-deprecated | pass this to the generate command after -g |
 | generator stability | STABLE | |
 | generator type | SERVER | |
-| generator language | Rust | |
+| generator language | C++ | |
 | generator default templating engine | mustache | |
-| helpTxt | Generates a Rust Hyper/Tower server library. Also generates a matching Hyper client library within the same crate that implements the same trait. | |
+| helpTxt | Generates a C++ API Server with Restbed (https://github.com/Corvusoft/restbed). | |
 
 ## CONFIG OPTIONS
 These options may be applied as additional-properties (cli) or configOptions (plugins). Refer to [configuration docs](https://openapi-generator.tech/docs/configuration) for more details.
 
 | Option | Description | Values | Default |
 | ------ | ----------- | ------ | ------- |
-|packageName|Rust crate name (convention: snake_case).| |openapi_client|
-|packageVersion|Rust crate version.| |null|
+|apiPackage|C++ namespace for apis (convention: name.space.api).| |org.openapitools.server.api|
+|declspec|C++ preprocessor to place before the class name for handling dllexport/dllimport.| ||
+|defaultInclude|The default include statement that should be placed in all headers for including things like the declspec (convention: #include &quot;Commons.h&quot; | ||
+|modelPackage|C++ namespace for models (convention: name.space.model).| |org.openapitools.server.model|
+|packageVersion|C++ package version.| |1.0.0|
+|reservedWordPrefix|Prefix to prepend to reserved words in order to avoid conflicts| |r_|
 
 ## IMPORT MAPPING
 
 | Type/Alias | Imports |
 | ---------- | ------- |
+|Object|#include &quot;Object.h&quot;|
+|restbed::Bytes|#include &lt;corvusoft/restbed/byte.hpp&gt;|
+|std::map|#include &lt;map&gt;|
+|std::string|#include &lt;string&gt;|
+|std::vector|#include &lt;vector&gt;|
 
 
 ## INSTANTIATION TYPES
 
 | Type/Alias | Instantiated By |
 | ---------- | --------------- |
-|array|Vec|
-|map|std::collections::HashMap|
 
 
 ## LANGUAGE PRIMITIVES
 
 <ul class="column-ul">
-<li>String</li>
 <li>bool</li>
 <li>char</li>
-<li>f32</li>
-<li>f64</li>
-<li>i16</li>
-<li>i32</li>
-<li>i64</li>
-<li>i8</li>
-<li>isize</li>
-<li>str</li>
-<li>u16</li>
-<li>u32</li>
-<li>u64</li>
-<li>u8</li>
-<li>usize</li>
+<li>double</li>
+<li>float</li>
+<li>int</li>
+<li>int32_t</li>
+<li>int64_t</li>
+<li>long</li>
 </ul>
 
 ## RESERVED WORDS
 
 <ul class="column-ul">
-<li>Self</li>
-<li>abstract</li>
-<li>as</li>
-<li>async</li>
-<li>await</li>
-<li>become</li>
-<li>box</li>
+<li>alignas</li>
+<li>alignof</li>
+<li>and</li>
+<li>and_eq</li>
+<li>asm</li>
+<li>auto</li>
+<li>bitand</li>
+<li>bitor</li>
+<li>bool</li>
 <li>break</li>
+<li>case</li>
+<li>catch</li>
+<li>char</li>
+<li>char16_t</li>
+<li>char32_t</li>
+<li>class</li>
+<li>compl</li>
+<li>concept</li>
 <li>const</li>
+<li>const_cast</li>
+<li>constexpr</li>
 <li>continue</li>
-<li>crate</li>
+<li>decltype</li>
+<li>default</li>
+<li>delete</li>
 <li>do</li>
-<li>dyn</li>
+<li>double</li>
+<li>dynamic_cast</li>
 <li>else</li>
 <li>enum</li>
+<li>explicit</li>
+<li>export</li>
 <li>extern</li>
 <li>false</li>
-<li>final</li>
-<li>fn</li>
+<li>float</li>
 <li>for</li>
+<li>friend</li>
+<li>goto</li>
 <li>if</li>
-<li>impl</li>
-<li>in</li>
-<li>let</li>
-<li>loop</li>
-<li>macro</li>
-<li>match</li>
-<li>mod</li>
-<li>move</li>
-<li>mut</li>
-<li>override</li>
-<li>priv</li>
-<li>pub</li>
-<li>ref</li>
+<li>inline</li>
+<li>int</li>
+<li>linux</li>
+<li>long</li>
+<li>mutable</li>
+<li>namespace</li>
+<li>new</li>
+<li>noexcept</li>
+<li>not</li>
+<li>not_eq</li>
+<li>nullptr</li>
+<li>operator</li>
+<li>or</li>
+<li>or_eq</li>
+<li>private</li>
+<li>protected</li>
+<li>public</li>
+<li>register</li>
+<li>reinterpret_cast</li>
+<li>requires</li>
 <li>return</li>
-<li>self</li>
+<li>short</li>
+<li>signed</li>
+<li>sizeof</li>
 <li>static</li>
+<li>static_assert</li>
+<li>static_cast</li>
 <li>struct</li>
-<li>super</li>
-<li>trait</li>
+<li>switch</li>
+<li>template</li>
+<li>this</li>
+<li>thread_local</li>
+<li>throw</li>
 <li>true</li>
 <li>try</li>
-<li>type</li>
-<li>typeof</li>
-<li>unsafe</li>
-<li>unsized</li>
-<li>use</li>
+<li>typedef</li>
+<li>typeid</li>
+<li>typename</li>
+<li>union</li>
+<li>unsigned</li>
+<li>using</li>
 <li>virtual</li>
-<li>where</li>
+<li>void</li>
+<li>volatile</li>
+<li>wchar_t</li>
 <li>while</li>
-<li>yield</li>
+<li>xor</li>
+<li>xor_eq</li>
 </ul>
 
 ## FEATURE SET
@@ -118,7 +153,7 @@ These options may be applied as additional-properties (cli) or configOptions (pl
 ### Client Modification Feature
 | Name | Supported | Defined By |
 | ---- | --------- | ---------- |
-|BasePath|✓|ToolingExtension
+|BasePath|✗|ToolingExtension
 |Authorizations|✗|ToolingExtension
 |UserAgent|✗|ToolingExtension
 |MockServer|✗|ToolingExtension
@@ -183,7 +218,7 @@ These options may be applied as additional-properties (cli) or configOptions (pl
 |MultiServer|✗|OAS3
 |ParameterizedServer|✗|OAS3
 |ParameterStyling|✗|OAS3
-|Callbacks|✓|OAS3
+|Callbacks|✗|OAS3
 |LinkObjects|✗|OAS3
 
 ### Parameter Feature
@@ -212,11 +247,11 @@ These options may be applied as additional-properties (cli) or configOptions (pl
 ### Security Feature
 | Name | Supported | Defined By |
 | ---- | --------- | ---------- |
-|BasicAuth|✓|OAS2,OAS3
-|ApiKey|✓|OAS2,OAS3
+|BasicAuth|✗|OAS2,OAS3
+|ApiKey|✗|OAS2,OAS3
 |OpenIDConnect|✗|OAS3
-|BearerToken|✓|OAS3
-|OAuth2_Implicit|✓|OAS2,OAS3
+|BearerToken|✗|OAS3
+|OAuth2_Implicit|✗|OAS2,OAS3
 |OAuth2_Password|✗|OAS2,OAS3
 |OAuth2_ClientCredentials|✗|OAS2,OAS3
 |OAuth2_AuthorizationCode|✗|OAS2,OAS3
@@ -227,4 +262,4 @@ These options may be applied as additional-properties (cli) or configOptions (pl
 |JSON|✓|OAS2,OAS3
 |XML|✓|OAS2,OAS3
 |PROTOBUF|✗|ToolingExtension
-|Custom|✓|OAS2,OAS3
+|Custom|✗|OAS2,OAS3

@@ -41,12 +41,15 @@ public class KindeReactNativeGenerator extends AbstractTypeScriptClientCodegen {
 	public static final String STRING_ENUMS = "stringEnums";
 	public static final String STRING_ENUMS_DESC =
 			"Generate string enums instead of objects for enum values.";
+	public static final String EMIT_MODEL_METHODS = "emitModelMethods";
+	public static final String EMIT_JS_DOC = "emitJSDoc";
+	public static final String USE_PROMISES = "usePromises";
 
 	protected String projectName = "@kinde-oss/react-native-sdk";
 	protected String moduleName;
 	protected String projectDescription = "Kinde React Native SDK for authentication";
 	protected String projectVersion;
-	protected String licenseName = "Apache-2.0";
+	protected String licenseName = "MIT";
 	protected String npmRepository = null;
 	private boolean useSingleRequestParameter = true;
 	private boolean prefixParameterInterfaces = false;
@@ -54,6 +57,7 @@ public class KindeReactNativeGenerator extends AbstractTypeScriptClientCodegen {
 	protected boolean addedModelIndex = false;
 	protected boolean withoutRuntimeChecks = false;
 	protected boolean stringEnums = false;
+	protected boolean usePromises = true;
 
 	// "Saga and Record" mode.
 	public static final String SAGAS_AND_RECORDS = "sagasAndRecords";
@@ -80,6 +84,10 @@ public class KindeReactNativeGenerator extends AbstractTypeScriptClientCodegen {
 	protected String testFolder = "test";
 	protected String androidFolder = "android";
 	protected String iOSFolder = "ios";
+	protected boolean emitModelMethods;
+	protected boolean emitJSDoc = true;
+	protected String apiDocPath = "docs/";
+	protected String modelDocPath = "docs/";
 
 	final String[][] JAVASCRIPT_ES6_SUPPORTING_FILES = {
 			new String[] {"package.mustache", "package.json"},
@@ -104,7 +112,7 @@ public class KindeReactNativeGenerator extends AbstractTypeScriptClientCodegen {
 		outputFolder = "generated-code/typescript-fetch";
 		embeddedTemplateDir = templateDir = "typescript-fetch";
 
-		this.apiTemplateFiles.put("apis.mustache", ".ts");
+		this.apiTemplateFiles.put("api.mustache", ".ts");
 
 		this.addExtraReservedWords();
 
@@ -148,6 +156,11 @@ public class KindeReactNativeGenerator extends AbstractTypeScriptClientCodegen {
 		this.cliOptions
 				.add(new CliOption(STRING_ENUMS, STRING_ENUMS_DESC, SchemaTypeUtil.BOOLEAN_TYPE)
 						.defaultValue(Boolean.FALSE.toString()));
+						this.cliOptions.add(new CliOption(EMIT_MODEL_METHODS,
+				"generate getters and setters for model properties")
+						.defaultValue(Boolean.FALSE.toString()));
+		this.cliOptions.add(new CliOption(EMIT_JS_DOC, "generate JSDoc comments")
+				.defaultValue(Boolean.TRUE.toString()));
 	}
 
 	@Override
@@ -166,6 +179,34 @@ public class KindeReactNativeGenerator extends AbstractTypeScriptClientCodegen {
 
 	public void setNpmRepository(String npmRepository) {
 		this.npmRepository = npmRepository;
+	}
+
+	public void setEmitModelMethods(boolean emitModelMethods) {
+		this.emitModelMethods = emitModelMethods;
+	}
+
+	public void setEmitJSDoc(boolean emitJSDoc) {
+		this.emitJSDoc = emitJSDoc;
+	}
+
+	@Override
+	public String apiDocFileFolder() {
+		return createPath(outputFolder, apiDocPath);
+	}
+
+	@Override
+	public String modelDocFileFolder() {
+		return createPath(outputFolder, modelDocPath);
+	}
+
+	@Override
+	public String toApiDocFilename(String name) {
+		return toApiName(name);
+	}
+
+	@Override
+	public String toModelDocFilename(String name) {
+		return toModelName(name);
 	}
 
 	public Boolean getWithoutRuntimeChecks() {
@@ -272,6 +313,12 @@ public class KindeReactNativeGenerator extends AbstractTypeScriptClientCodegen {
 		if (additionalProperties.containsKey(NPM_REPOSITORY)) {
 			setNpmRepository(((String) additionalProperties.get(NPM_REPOSITORY)));
 		}
+		if (additionalProperties.containsKey(EMIT_MODEL_METHODS)) {
+			setEmitModelMethods(convertPropertyToBooleanAndWriteBack(EMIT_MODEL_METHODS));
+		}
+		if (additionalProperties.containsKey(EMIT_JS_DOC)) {
+			setEmitJSDoc(convertPropertyToBooleanAndWriteBack(EMIT_JS_DOC));
+		}
 		additionalProperties.put("isOriginalModelPropertyNaming",
 				getModelPropertyNaming() == CodegenConstants.MODEL_PROPERTY_NAMING_TYPE.original);
 		additionalProperties.put("modelPropertyNaming", getModelPropertyNaming().name());
@@ -315,7 +362,7 @@ public class KindeReactNativeGenerator extends AbstractTypeScriptClientCodegen {
 		}
 
 		if (!withoutRuntimeChecks) {
-			this.modelTemplateFiles.put("models.mustache", ".ts");
+			this.modelTemplateFiles.put("model.mustache", ".ts");
 			typeMapping.put("date", "Date");
 			typeMapping.put("DateTime", "Date");
 		}
@@ -432,6 +479,13 @@ public class KindeReactNativeGenerator extends AbstractTypeScriptClientCodegen {
 		additionalProperties.put(PROJECT_DESCRIPTION, escapeText(projectDescription));
 		additionalProperties.put(PROJECT_VERSION, projectVersion);
 		additionalProperties.put(CodegenConstants.LICENSE_NAME, licenseName);
+
+		// make api and model doc path available in mustache template
+		additionalProperties.put("apiDocPath", apiDocPath);
+		additionalProperties.put("modelDocPath", modelDocPath);
+		additionalProperties.put(EMIT_MODEL_METHODS, emitModelMethods);
+		additionalProperties.put(EMIT_JS_DOC, emitJSDoc);
+		apiDocTemplateFiles.put("api_doc.mustache", ".md");
 	}
 
 	public void setProjectName(String projectName) {
@@ -1760,18 +1814,28 @@ public class KindeReactNativeGenerator extends AbstractTypeScriptClientCodegen {
 	private void addSupportingFilesForSDK() {
 		supportingFiles.add(new SupportingFile("types/global.mustache",
 				createPath(sourceFolder, "types"), "global.d.ts"));
+		supportingFiles.add(new SupportingFile("types/KindeSDK.mustache",
+				createPath(sourceFolder, "types"), "KindeSDK.ts"));
+
 		supportingFiles.add(new SupportingFile("SDK/Storage/base.mustache",
 				createPath(sourceFolder, sdkFolder, "Storage"), "Base.ts"));
 		supportingFiles.add(new SupportingFile("SDK/Storage/index.mustache",
 				createPath(sourceFolder, sdkFolder, "Storage"), "index.ts"));
+
 		supportingFiles.add(new SupportingFile("SDK/Utils.mustache",
 				createPath(sourceFolder, sdkFolder), "Utils.ts"));
+
 		supportingFiles.add(new SupportingFile("SDK/KindeSDK.mustache",
 				createPath(sourceFolder, sdkFolder), "KindeSDK.ts"));
+
 		supportingFiles.add(new SupportingFile("SDK/OAuth/AuthorizationCode.mustache",
-				createPath(sourceFolder, sdkFolder), "OAuth/AuthorizationCode.ts"));
+				createPath(sourceFolder, sdkFolder, "OAuth"), "AuthorizationCode.ts"));
+
 		supportingFiles.add(new SupportingFile("SDK/Enums/AuthStatus.mustache",
-				createPath(sourceFolder, sdkFolder), "Enums/AuthStatus.enum.ts"));
+				createPath(sourceFolder, sdkFolder, "Enums"), "AuthStatus.enum.ts"));
+
+		supportingFiles.add(new SupportingFile("SDK/constants/index.mustache",
+				createPath(sourceFolder, sdkFolder, "constants"), "index.ts"));
 	}
 
 	private void addSupportingFilesForAndroid() {
@@ -1869,5 +1933,9 @@ public class KindeReactNativeGenerator extends AbstractTypeScriptClientCodegen {
 				.add(new SupportingFile("common/exceptions/property-required.mustache", createPath("/src/common/exceptions"), "property-required.exception.ts"));
 		supportingFiles
 				.add(new SupportingFile("common/exceptions/unauthenticated.mustache", createPath("/src/common/exceptions"), "unauthenticated.exception.ts"));
+		supportingFiles
+				.add(new SupportingFile("common/exceptions/invalid-type.mustache", createPath("/src/common/exceptions"), "invalid-type.exception.ts"));
+		supportingFiles
+				.add(new SupportingFile("common/exceptions/unexpected.mustache", createPath("/src/common/exceptions"), "unexpected.exception.ts"));
 	}
 }

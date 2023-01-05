@@ -1,17 +1,17 @@
 ---
-title: Documentation for the ruby Generator
+title: Documentation for the javascript-apollo-deprecated Generator
 ---
 
 ## METADATA
 
 | Property | Value | Notes |
 | -------- | ----- | ----- |
-| generator name | ruby | pass this to the generate command after -g |
-| generator stability | STABLE | |
+| generator name | javascript-apollo-deprecated | pass this to the generate command after -g |
+| generator stability | DEPRECATED | |
 | generator type | CLIENT | |
-| generator language | Ruby | |
+| generator language | Javascript | |
 | generator default templating engine | mustache | |
-| helpTxt | Generates a Ruby client library. | |
+| helpTxt | Generates a JavaScript client library (beta) using Apollo RESTDatasource. | |
 
 ## CONFIG OPTIONS
 These options may be applied as additional-properties (cli) or configOptions (plugins). Refer to [configuration docs](https://openapi-generator.tech/docs/configuration) for more details.
@@ -19,26 +19,29 @@ These options may be applied as additional-properties (cli) or configOptions (pl
 | Option | Description | Values | Default |
 | ------ | ----------- | ------ | ------- |
 |allowUnicodeIdentifiers|boolean, toggles whether unicode identifiers are allowed in names or not, default is false| |false|
+|apiPackage|package for generated api classes| |null|
 |disallowAdditionalPropertiesIfNotPresent|If false, the 'additionalProperties' implementation (set to true by default) is compliant with the OAS and JSON schema specifications. If true (default), keep the old (incorrect) behaviour that 'additionalProperties' is set to false by default.|<dl><dt>**false**</dt><dd>The 'additionalProperties' implementation is compliant with the OAS and JSON schema specifications.</dd><dt>**true**</dt><dd>Keep the old (incorrect) behaviour that 'additionalProperties' is set to false by default.</dd></dl>|true|
+|emitJSDoc|generate JSDoc comments| |true|
+|emitModelMethods|generate getters and setters for model properties| |false|
 |ensureUniqueParams|Whether to ensure parameter names are unique in an operation (rename parameters that are not).| |true|
 |enumUnknownDefaultCase|If the server adds new enum cases, that are unknown by an old spec/client, the client will fail to parse the network response.With this option enabled, each enum will have a new case, 'unknown_default_open_api', so that when the server sends an enum case that is not known by the client/spec, they can safely fallback to this case.|<dl><dt>**false**</dt><dd>No changes to the enum's are made, this is the default option.</dd><dt>**true**</dt><dd>With this option enabled, each enum will have a new case, 'unknown_default_open_api', so that when the enum case sent by the server is not known by the client/spec, can safely be decoded to this case.</dd></dl>|false|
-|gemAuthor|gem author (only one is supported).| |OpenAPI-Generator|
-|gemAuthorEmail|gem author email (only one is supported).| |null|
-|gemDescription|gem description. | |This gem maps to a REST API|
-|gemHomepage|gem homepage. | |https://openapi-generator.tech|
-|gemLicense|gem license. | |unlicense|
-|gemName|gem name (convention: underscore_case).| |openapi_client|
-|gemRequiredRubyVersion|gem required Ruby version. | |&gt;= 2.4|
-|gemSummary|gem summary. | |A ruby wrapper for the REST APIs|
-|gemVersion|gem version.| |1.0.0|
 |hideGenerationTimestamp|Hides the generation timestamp when files are generated.| |true|
+|invokerPackage|root package for generated code| |null|
 |legacyDiscriminatorBehavior|Set to false for generators with better support for discriminators. (Python, Java, Go, PowerShell, C#have this enabled by default).|<dl><dt>**true**</dt><dd>The mapping in the discriminator includes descendent schemas that allOf inherit from self and the discriminator mapping schemas in the OAS document.</dd><dt>**false**</dt><dd>The mapping in the discriminator includes any descendent schemas that allOf inherit from self, any oneOf schemas, any anyOf schemas, any x-discriminator-values, and the discriminator mapping schemas in the OAS document AND Codegen validates that oneOf and anyOf schemas contain the required discriminator and throws an error if the discriminator is missing.</dd></dl>|true|
-|library|HTTP library template (sub-template) to use|<dl><dt>**faraday**</dt><dd>Faraday (https://github.com/lostisland/faraday) (Beta support)</dd><dt>**typhoeus**</dt><dd>Typhoeus &gt;= 1.0.1 (https://github.com/typhoeus/typhoeus)</dd></dl>|typhoeus|
-|moduleName|top module name (convention: CamelCase, usually corresponding to gem name).| |OpenAPIClient|
+|licenseName|name of the license the project uses (Default: using info.license.name)| |null|
+|modelPackage|package for generated models| |null|
+|modelPropertyNaming|Naming convention for the property: 'camelCase', 'PascalCase', 'snake_case' and 'original', which keeps the original name| |camelCase|
+|moduleName|module name for AMD, Node or globals (Default: generated from &lt;projectName&gt;)| |null|
+|npmRepository|Use this property to set an url your private npmRepo in the package.json| |null|
 |prependFormOrBodyParameters|Add form or body parameters to the beginning of the parameter list.| |false|
+|projectDescription|description of the project (Default: using info.description or &quot;Client library of &lt;projectName&gt;&quot;)| |null|
+|projectName|name of the project (Default: generated from info.title or &quot;openapi-js-client&quot;)| |null|
+|projectVersion|version of the project (Default: using info.version or &quot;1.0.0&quot;)| |null|
 |sortModelPropertiesByRequiredFlag|Sort model properties to place required parameters before optional parameters.| |true|
 |sortParamsByRequiredFlag|Sort method arguments to place required parameters before optional parameters.| |true|
-|useAutoload|Use autoload instead of require to load modules.| |false|
+|sourceFolder|source folder for generated code| |src|
+|useInheritance|use JavaScript prototype chains &amp; delegation for inheritance| |true|
+|usePromises|use Promises as return values from the client API, instead of superagent callbacks| |false|
 
 ## IMPORT MAPPING
 
@@ -51,79 +54,105 @@ These options may be applied as additional-properties (cli) or configOptions (pl
 | Type/Alias | Instantiated By |
 | ---------- | --------------- |
 |array|Array|
-|map|Hash|
-|set|Set|
+|list|Array|
+|map|Object|
+|set|Array|
 
 
 ## LANGUAGE PRIMITIVES
 
 <ul class="column-ul">
 <li>Array</li>
+<li>Blob</li>
 <li>Boolean</li>
 <li>Date</li>
 <li>File</li>
-<li>Float</li>
-<li>Hash</li>
-<li>Integer</li>
+<li>Number</li>
 <li>Object</li>
 <li>String</li>
-<li>Time</li>
-<li>array</li>
-<li>int</li>
-<li>map</li>
-<li>string</li>
 </ul>
 
 ## RESERVED WORDS
 
 <ul class="column-ul">
-<li>__file__</li>
-<li>__line__</li>
-<li>_header_accept</li>
-<li>_header_accept_result</li>
-<li>_header_content_type</li>
-<li>alias</li>
-<li>and</li>
-<li>auth_names</li>
-<li>begin</li>
+<li>Array</li>
+<li>Date</li>
+<li>Infinity</li>
+<li>Math</li>
+<li>NaN</li>
+<li>Number</li>
+<li>Object</li>
+<li>String</li>
+<li>abstract</li>
+<li>arguments</li>
+<li>boolean</li>
 <li>break</li>
+<li>byte</li>
 <li>case</li>
+<li>catch</li>
+<li>char</li>
 <li>class</li>
-<li>def</li>
-<li>defined?</li>
+<li>const</li>
+<li>continue</li>
+<li>debugger</li>
+<li>default</li>
+<li>delete</li>
 <li>do</li>
+<li>double</li>
 <li>else</li>
-<li>elsif</li>
-<li>end</li>
-<li>ensure</li>
+<li>enum</li>
+<li>eval</li>
+<li>export</li>
+<li>extends</li>
 <li>false</li>
+<li>final</li>
+<li>finally</li>
+<li>float</li>
 <li>for</li>
-<li>form_params</li>
-<li>header_params</li>
+<li>function</li>
+<li>goto</li>
+<li>hasOwnProperty</li>
 <li>if</li>
+<li>implements</li>
+<li>import</li>
 <li>in</li>
-<li>local_var_path</li>
-<li>module</li>
-<li>next</li>
-<li>nil</li>
-<li>not</li>
-<li>or</li>
-<li>post_body</li>
-<li>query_params</li>
-<li>redo</li>
-<li>rescue</li>
-<li>retry</li>
+<li>instanceof</li>
+<li>int</li>
+<li>interface</li>
+<li>isFinite</li>
+<li>isNaN</li>
+<li>isPrototypeOf</li>
+<li>let</li>
+<li>long</li>
+<li>native</li>
+<li>new</li>
+<li>null</li>
+<li>package</li>
+<li>private</li>
+<li>protected</li>
+<li>prototype</li>
+<li>public</li>
 <li>return</li>
-<li>self</li>
-<li>send</li>
+<li>short</li>
+<li>static</li>
 <li>super</li>
-<li>then</li>
+<li>switch</li>
+<li>synchronized</li>
+<li>this</li>
+<li>throw</li>
+<li>throws</li>
+<li>toString</li>
+<li>transient</li>
 <li>true</li>
-<li>undef</li>
-<li>unless</li>
-<li>until</li>
-<li>when</li>
+<li>try</li>
+<li>typeof</li>
+<li>undefined</li>
+<li>valueOf</li>
+<li>var</li>
+<li>void</li>
+<li>volatile</li>
 <li>while</li>
+<li>with</li>
 <li>yield</li>
 </ul>
 
@@ -133,9 +162,9 @@ These options may be applied as additional-properties (cli) or configOptions (pl
 ### Client Modification Feature
 | Name | Supported | Defined By |
 | ---- | --------- | ---------- |
-|BasePath|✓|ToolingExtension
+|BasePath|✗|ToolingExtension
 |Authorizations|✗|ToolingExtension
-|UserAgent|✓|ToolingExtension
+|UserAgent|✗|ToolingExtension
 |MockServer|✗|ToolingExtension
 
 ### Data Type Feature
@@ -198,7 +227,7 @@ These options may be applied as additional-properties (cli) or configOptions (pl
 |MultiServer|✗|OAS3
 |ParameterizedServer|✗|OAS3
 |ParameterStyling|✗|OAS3
-|Callbacks|✗|OAS3
+|Callbacks|✓|OAS3
 |LinkObjects|✗|OAS3
 
 ### Parameter Feature
@@ -210,7 +239,7 @@ These options may be applied as additional-properties (cli) or configOptions (pl
 |Body|✓|OAS2
 |FormUnencoded|✓|OAS2
 |FormMultipart|✓|OAS2
-|Cookie|✗|OAS3
+|Cookie|✓|OAS3
 
 ### Schema Support Feature
 | Name | Supported | Defined By |
@@ -232,9 +261,9 @@ These options may be applied as additional-properties (cli) or configOptions (pl
 |OpenIDConnect|✗|OAS3
 |BearerToken|✓|OAS3
 |OAuth2_Implicit|✓|OAS2,OAS3
-|OAuth2_Password|✗|OAS2,OAS3
-|OAuth2_ClientCredentials|✗|OAS2,OAS3
-|OAuth2_AuthorizationCode|✗|OAS2,OAS3
+|OAuth2_Password|✓|OAS2,OAS3
+|OAuth2_ClientCredentials|✓|OAS2,OAS3
+|OAuth2_AuthorizationCode|✓|OAS2,OAS3
 
 ### Wire Format Feature
 | Name | Supported | Defined By |
@@ -242,4 +271,4 @@ These options may be applied as additional-properties (cli) or configOptions (pl
 |JSON|✓|OAS2,OAS3
 |XML|✓|OAS2,OAS3
 |PROTOBUF|✗|ToolingExtension
-|Custom|✓|OAS2,OAS3
+|Custom|✗|OAS2,OAS3

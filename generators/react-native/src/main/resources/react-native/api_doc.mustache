@@ -2,7 +2,7 @@
 
 {{.}}{{/description}}
 
-All URIs are relative to *{{basePath}}*
+All URIs are relative to *{{#operations}}{{#operation}}{{#-first}}{{#servers}}{{{url}}}{{/servers}}{{^servers}}{{{basePath}}}{{/servers}}{{/-first}}{{/operation}}{{/operations}}*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
@@ -69,11 +69,8 @@ let opts = {
 {{/-last}}
 {{/optionalParams}}
 {{#usePromises}}
-apiInstance.{{{operationId}}}({{#requiredParams}}{{{paramName}}}{{^-last}}, {{/-last}}{{/requiredParams}}{{#optionalParams}}{{#-last}}{{#hasRequiredParams}}, {{/hasRequiredParams}}opts{{/-last}}{{/optionalParams}}).then(({{#returnType}}data{{/returnType}}) => {
-  {{#returnType}}console.log('API called successfully. Returned data: ' + data);{{/returnType}}{{^returnType}}console.log('API called successfully.');{{/returnType}}
-}, (error) => {
-  console.error(error);
-});
+const data = await apiInstance.{{{operationId}}}({{#requiredParams}}{{{paramName}}}{{^-last}}, {{/-last}}{{/requiredParams}}{{#optionalParams}}{{#-last}}{{#hasRequiredParams}}, {{/hasRequiredParams}}opts{{/-last}}{{/optionalParams}});
+{{#returnType}}console.log('API called successfully. Returned data: ' + data);{{/returnType}}{{^returnType}}console.log('API called successfully.');{{/returnType}}
 
 {{/usePromises}}
 {{^usePromises}}
