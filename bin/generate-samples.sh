@@ -55,7 +55,7 @@ else
     echo "Please press CTRL+C to stop or the script will continue in 5 seconds."
     sleep 5
     if [ ${#files[@]} -eq 0 ]; then
-      files=("${root}"/bin/configs/*.yaml)
+      files=("${root}"/bin/configs/template-for-test.yaml)
     fi
 
     # shellcheck disable=SC2086
