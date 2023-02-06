@@ -486,6 +486,7 @@ public class KindeReactNativeGenerator extends AbstractTypeScriptClientCodegen {
 		additionalProperties.put(EMIT_MODEL_METHODS, emitModelMethods);
 		additionalProperties.put(EMIT_JS_DOC, emitJSDoc);
 		apiDocTemplateFiles.put("api_doc.mustache", ".md");
+        modelDocTemplateFiles.put("model_doc.mustache", ".md");
 	}
 
 	public void setProjectName(String projectName) {
