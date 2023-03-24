@@ -1,0 +1,26 @@
+{{>licenseInfo}}
+
+import * as KeyChain from 'react-native-keychain';
+
+{{#emitJSDoc}}/**
+* The Storage SDK module.
+* @module SDK/Storage
+* @version {{projectVersion}}
+*/{{/emitJSDoc}}
+
+export default class KindeStorage {
+    async getItem() {
+        return KeyChain.getGenericPassword();
+    }
+
+    async setItem<T>(value: T) {
+        return KeyChain.setGenericPassword(
+            'kinde',
+            typeof value === 'string' ? value : JSON.stringify(value)
+        );
+    }
+
+    clear() {
+        return KeyChain.resetGenericPassword();
+    }
+}

@@ -417,6 +417,11 @@ public class KindeReactNativeGenerator extends AbstractTypeScriptClientCodegen {
 		// License
 		supportingFiles.add(new SupportingFile("LICENSE", createPath(""),
 				"LICENSE"));
+		
+
+		// Assess
+		supportingFiles.add(new SupportingFile("assets/image.png",
+				createPath(""), "assets/image.png"));
 
 		addSupportingFilesForSDK();
 		addSupportingFilesForIOS();
@@ -1813,16 +1818,21 @@ public class KindeReactNativeGenerator extends AbstractTypeScriptClientCodegen {
 	}
 
 	private void addSupportingFilesForSDK() {
+		// Types
 		supportingFiles.add(new SupportingFile("types/global.mustache",
 				createPath(sourceFolder, "types"), "global.d.ts"));
 		supportingFiles.add(new SupportingFile("types/KindeSDK.mustache",
 				createPath(sourceFolder, "types"), "KindeSDK.ts"));
 
+		// Storage
 		supportingFiles.add(new SupportingFile("SDK/Storage/base.mustache",
 				createPath(sourceFolder, sdkFolder, "Storage"), "Base.ts"));
 		supportingFiles.add(new SupportingFile("SDK/Storage/index.mustache",
 				createPath(sourceFolder, sdkFolder, "Storage"), "index.ts"));
+		supportingFiles.add(new SupportingFile("SDK/Storage/KindeStorage.mustache",
+				createPath(sourceFolder, sdkFolder, "Storage"), "KindeStorage.ts"));
 
+		// Utils
 		supportingFiles.add(new SupportingFile("SDK/Utils.mustache",
 				createPath(sourceFolder, sdkFolder), "Utils.ts"));
 
@@ -1832,9 +1842,17 @@ public class KindeReactNativeGenerator extends AbstractTypeScriptClientCodegen {
 		supportingFiles.add(new SupportingFile("SDK/OAuth/AuthorizationCode.mustache",
 				createPath(sourceFolder, sdkFolder, "OAuth"), "AuthorizationCode.ts"));
 
+		// Enums
 		supportingFiles.add(new SupportingFile("SDK/Enums/AuthStatus.mustache",
 				createPath(sourceFolder, sdkFolder, "Enums"), "AuthStatus.enum.ts"));
 
+		supportingFiles.add(new SupportingFile("SDK/Enums/index.mustache",
+				createPath(sourceFolder, sdkFolder, "Enums"), "index.ts"));
+
+		supportingFiles.add(new SupportingFile("SDK/Enums/TokenType.mustache",
+				createPath(sourceFolder, sdkFolder, "Enums"), "TokenType.enum.ts"));
+
+		// Constants
 		supportingFiles.add(new SupportingFile("SDK/constants/index.mustache",
 				createPath(sourceFolder, sdkFolder, "constants"), "index.ts"));
 	}
