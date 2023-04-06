@@ -1829,8 +1829,10 @@ public class KindeReactNativeGenerator extends AbstractTypeScriptClientCodegen {
 				createPath(sourceFolder, sdkFolder, "Storage"), "Base.ts"));
 		supportingFiles.add(new SupportingFile("SDK/Storage/index.mustache",
 				createPath(sourceFolder, sdkFolder, "Storage"), "index.ts"));
-		supportingFiles.add(new SupportingFile("SDK/Storage/KindeStorage.mustache",
-				createPath(sourceFolder, sdkFolder, "Storage"), "KindeStorage.ts"));
+		supportingFiles.add(new SupportingFile("SDK/Storage/RNStorage.mustache",
+				createPath(sourceFolder, sdkFolder, "Storage"), "RNStorage.ts"));
+		supportingFiles.add(new SupportingFile("SDK/Storage/ExpoStorage.mustache",
+				createPath(sourceFolder, sdkFolder, "Storage"), "ExpoStorage.ts"));
 
 		// Utils
 		supportingFiles.add(new SupportingFile("SDK/Utils.mustache",
