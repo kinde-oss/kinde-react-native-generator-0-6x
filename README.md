@@ -34,28 +34,13 @@ $ make clean
 
 To build a SDKs:
 
-The format will be `build-{language}`. Example, build `react-native`:
 ```
 $ make build-react-native
 ```
-Now we have only react-native SDK
+The SDK is located `/out/kinde-react-native-sdk`
 
 Check `Makefile` for more detail.
 
-**Note: Please change your business name in `kinde-mgmt-api-specs.yaml` before generating the SDK**
-```
-...
-servers:
-  - url: https://{businessName}.kinde.com
-    variables:
-      businessName:
-        description: Business Name created in the Kinde Console
-        default: YOUR_BUSINESS_NAME // <-- Change here
-...
-```
-
-## How to update the API Specs ?
-You can update the content of `kinde-mgmt-api-specs.yaml` . Then regenerate the SDK you want.
 ## Notes:
  ### React Native
  - React Native SDK Template: files under `generators/react-native`

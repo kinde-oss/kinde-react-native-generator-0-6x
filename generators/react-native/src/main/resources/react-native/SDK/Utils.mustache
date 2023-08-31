@@ -1,15 +1,15 @@
 {{>licenseInfo}}
 
 import crypto, { LibWordArray } from 'crypto-js';
+import Constants, { ExecutionEnvironment } from 'expo-constants';
+import * as WebBrowser from 'expo-web-browser';
+import InAppBrowser from 'react-native-inappbrowser-reborn';
 import { InvalidTypeException } from '../common/exceptions/invalid-type.exception';
 import { PropertyRequiredException } from '../common/exceptions/property-required.exception';
 import { UnexpectedException } from '../common/exceptions/unexpected.exception';
 import { AdditionalParameters } from '../types/KindeSDK';
-import { AdditionalParametersAllow } from './constants';
-import InAppBrowser from 'react-native-inappbrowser-reborn';
 import KindeSDK from './KindeSDK';
-import Constants, { ExecutionEnvironment } from 'expo-constants';
-import * as WebBrowser from 'expo-web-browser';
+import { AdditionalParametersAllow } from './constants';
 
 {{#emitJSDoc}}/**
 * The Utils SDK module.
@@ -159,11 +159,11 @@ export const OpenWebInApp = async (url: string, kindeSDK: KindeSDK) => {
             response.type
         );
         return null;
-    } catch (err) {
-        if (err instanceof Error) {
+    } catch (error) {
+        if (error instanceof Error) {
             console.error(
                 'Something wrong when trying to authenticating. Reason: ',
-                err.message
+                error.message
             );
         }
         return null;
@@ -185,4 +185,14 @@ export const openWebBrowser = async (url: string, redirectUri: string) => {
         }
     }
     throw new Error('Not found web browser');
+};
+
+export const convertObject2FormData = (obj: Record<string, any>) => {
+    const formData = new FormData();
+
+    Object.keys(obj).forEach((k) => {
+        formData.append(k, obj[k]);
+    });
+
+    return formData;
 };
