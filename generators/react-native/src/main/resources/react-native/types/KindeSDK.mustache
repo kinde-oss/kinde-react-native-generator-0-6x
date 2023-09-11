@@ -1,3 +1,11 @@
+{{>licenseInfo}}
+
+{{#emitJSDoc}}/**
+* The KindeSDK module.
+* @module SDK/types
+* @version {{projectVersion}}
+*/{{/emitJSDoc}}
+
 export type AdditionalParameters = {
     audience?: string;
     is_create_org?: boolean;
@@ -5,20 +13,14 @@ export type AdditionalParameters = {
     org_name?: string;
 };
 
-export type TokenType = 'accessToken' | 'id_token';
-
-export type TokenID = {
-    sub: string;
-    given_name: string;
-    family_name: string;
-    email: string;
-};
+export type OrgAdditionalParams = Omit<AdditionalParameters, 'audience'>;
 
 export type UserProfile = {
     id: string;
     given_name: string;
     family_name: string;
     email: string;
+    picture: string;
 };
 
 export type TokenResponse = {
@@ -29,3 +31,22 @@ export type TokenResponse = {
     token_type: string;
     expires_in: number;
 };
+
+export type AccessTokenDecoded = {
+    aud: string[];
+    azp: string;
+    exp: number;
+    iat: number;
+    iss: string;
+    jti: string;
+    gty?: string[];
+    scp?: string[];
+} & Record<string, any>;
+
+export type IdTokenDecoded = {
+    sub: string;
+    given_name: string;
+    family_name: string;
+    email: string;
+    picture: string;
+} & Record<string, any>;

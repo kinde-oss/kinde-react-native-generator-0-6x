@@ -1,9 +1,7 @@
 {{>licenseInfo}}
 
 import KindeSDK from './SDK/KindeSDK';
-import * as Utils from './SDK/Utils'; 
-import { sessionStorage as Storage } from './SDK/Storage';
-import * as AuthStatus from './SDK/Enums/AuthStatus.enum';
+import Storage from './SDK/Storage';
 
 import * as ApiClient from './ApiClient';
 
@@ -48,12 +46,6 @@ export {
     ApiClient,
 
     <#emitJSDoc>/**
-        * The Utils SDK module.
-        * @property {module:SDK/Utils}
-    */</emitJSDoc>
-    Utils,
-
-    <#emitJSDoc>/**
         * The KindeSDK module.
         * @property {module:SDK/KindeSDK}
     */</emitJSDoc>
@@ -63,15 +55,10 @@ export {
         * The Storage SDK module.
         * @property {module:SDK/Storage}
     */</emitJSDoc>
-    Storage,
-
-    <#emitJSDoc>/**
-        * The AuthStatus SDK module.
-        * @property {module:SDK/Enums/AuthStatus}
-    */</emitJSDoc>
-    AuthStatus
+    Storage
 }
 <={{ }}=>
 
-export * from './apis';
-export * from './models';
+export * from './SDK/Enums';
+export * from './SDK/Utils';
+export * from './types/KindeSDK';

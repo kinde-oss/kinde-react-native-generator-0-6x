@@ -12,12 +12,26 @@ We only support the recommended [Authorization Code Flow with PKCE](https://oaut
 For more information, please visit [{{{infoUrl}}}]({{{infoUrl}}})
 {{/infoUrl}}
 
+## Table of contents
+- [Support Versions](#support-versions)
+- [Installing Dependencies](#installing-dependencies)
+- [Installation](#installation)
+- [Getting Started](#getting-started)
+- [Token Storage](#token-storage)
+- [How to run test](#how-to-run-test)
+- [SDK API Reference](#sdk-api-reference)
+- [KindeSDK Methods](#kindesdk-methods)
+- [General Tips](#general-tips)
+
 ## Support versions
 
-- React Native: We support React Native versions 0.60 and higher. To use this package with older versions of React Native, please visit [react-native-sdk-0-5x](https://github.com/kinde-oss/react-native-sdk-0-5x)
-- Expo
+We support both **Expo** and **React Native** versions 0.60 and higher.
+To use this package with other versions of **React Native**, please visit
 
-## Installing dependencies
+-   [react-native-sdk-0-5x _(Not support Expo)_](https://github.com/kinde-oss/react-native-sdk-0-5x)
+-   [react-native-sdk-0-7x](https://github.com/kinde-oss/kinde-react-native-sdk-0-7x)
+
+## Installing Dependencies
 
 You will need Node, the React Native command line interface, a JDK, Android Studio (for Android) and Xcode (for iOS).
 
@@ -25,14 +39,84 @@ Follow [the installation instructions for your chosen OS](https://reactnative.de
 
 ## Installation
 
-#### npm
-
 The SDK can be installed with `npm` or `yarn` but we will use `npm` for code samples.
 
 ```shell
 npm install {{{projectName}}} --save
 ```
-For iOS, you need to updating iOS native dependencies by **CocoaPods**. We recommend installing **CocoaPods** using [Homebrew](https://brew.sh/)
+
+### Android
+
+Checking `MainApplication.java` to verify the `react-native-keychain`, `react-native-inappbrowser-reborn` were added. If not, you need to install manually:
+-   Edit `android/settings.gradle`
+
+```java
+...
+
+include ':react-native-keychain'
+project(':react-native-keychain').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-keychain/android')
+
+include ':react-native-inappbrowser-reborn'
+project(':react-native-inappbrowser-reborn').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-inappbrowser-reborn/android')
+...
+```
+
+-   Edit `android/app/build.gradle`
+
+```java
+apply plugin: 'com.android.application'
+
+android {
+  ...
+}
+
+dependencies {
+  ...
+
+  implementation project(':react-native-keychain')
+  implementation project(':react-native-inappbrowser-reborn')
+
+  ...
+}
+```
+
+-   Edit your `MainApplication.java`
+
+```java
+...
+
+import com.oblador.keychain.KeychainPackage;
+import com.proyecto26.inappbrowser.RNInAppBrowserPackage;
+...
+
+public class MainActivity extends extends ReactActivity {
+  ...
+  @Override
+  protected List<ReactPackage> getPackages() {
+      return Arrays.<ReactPackage>asList(
+              new MainReactPackage(),
+              new KeychainPackage(),
+              new RNInAppBrowserPackage()
+      );
+  }
+
+  // or
+  @Override
+  protected List<ReactPackage> getPackages() {
+    @SuppressWarnings("UnnecessaryLocalVariable")
+    List<ReactPackage> packages = new PackageList(this).getPackages();
+    packages.add(new KeychainPackage());
+    packages.add(new RNInAppBrowserPackage());
+    return packages;
+  }
+  ...
+}
+...
+```
+
+#### iOS
+
+You need to updating iOS native dependencies by **CocoaPods**. We recommend installing **CocoaPods** using [Homebrew](https://brew.sh/)
 
 ```shell
 # Install CocoaPods via brew
@@ -41,6 +125,41 @@ brew install cocoapods
 # Install iOS native dependencies
 cd ios && pod install
 ```
+
+If the `react-native-keychain` not linked, you need to install manually
+
+**Option: With CocoaPods (High recommended)**
+
+Add the following to your `Podfile` and run pod update:
+
+```Swift
+pod 'RNKeychain', :path => '../node_modules/react-native-keychain'
+pod 'RNInAppBrowser', :path => '../node_modules/react-native-inappbrowser-reborn'
+```
+
+**Option: Manually**
+
+-   Click to `Build Phases` tab
+-   Choose `Link Binary With Libraries`
+-   Click `+` in bottom
+-   **Add Other...** => **Add Files...** => **node_modules/react-native-keychain/RNKeychain.xcodeproj** (similar with RNInAppBrowser)
+-   Then, you need to add `libRNKeychain.a`
+-   Clean and rebuild
+
+##### [Expo] Installation in Bare React Native
+
+Run this below command to update the package to your npm dependencies:
+
+```bash
+expo install expo-secure-store expo-web-browser
+// or
+npx expo install expo-secure-store expo-web-browser
+```
+
+##### Enable `Keychain Sharing` entitlement for iOS 10+
+
+For iOS 10 you'll need to enable the `Keychain Sharing` entitlement in the `Capabilities` section of your build target
+![screenshot](./assets/image.png)
 
 ## Getting Started
 
@@ -82,28 +201,6 @@ KINDE_CLIENT_ID=your_kinde_client_id
 ### Configuration Deep link
 
 #### With React Native
-If your app was launched from an external url registered to your app you can access and handle it from any component you want with:
-
-```javascript
-...
-import { ..., Linking, Platform, ... } from 'react-native';
-...
-useEffect(() => {
-  Linking.getInitialURL()
-    .then((url) => {
-      if (url) {
-        // Your code here
-      }
-    })
-    .catch((err) => console.error("An error occurred", err));
-
-  Linking.addEventListener('url', (event) => {
-    if (event.url) {
-      // Your code here
-    }
-  })
-}, []);
-```
 
 ##### iOS
 
@@ -167,9 +264,11 @@ Open `AndroidManifest.xml` and update your scheme:
     <data android:scheme="myapp" android:host="your_kinde_issuer.kinde.com" />  // you can change it
 </intent-filter>
 ```
+
 #### With Expo
 
 #### Linking to your app
+
 To link to your [development](https://docs.expo.dev/development/introduction/) build or standalone app, you need to specify a custom URL scheme for your app. You can register a scheme in your Expo config (**app.json**, **app.config.js**) by adding a string under the `scheme` key:
 
 ```json
@@ -180,11 +279,14 @@ To link to your [development](https://docs.expo.dev/development/introduction/) b
   }
 }
 ```
+
 #### Linking to Expo Go
+
 [Expo Go](https://expo.dev/expo-go) uses the `exp://` scheme, however, if we link to `exp://` without any address afterward, it will open the app to the home screen.
 
 In development, your app will live at a url like `exp://127.0.0.1:19000`. When published, an experience will be hosted at a URL like ` exp://u.expo.dev/[project-id]?channel-name=[channel-name]&runtime-version=[runtime-version]`, where `u.expo.dev/[project-id]` is the hosted URL that Expo Go fetches from.
-**Note**: You also should update your callback url to both your app and Kinde:
+_**Note**: You also should update your callback url to both your app and Kinde:_
+
 ```javascript
 KINDE_ISSUER_URL=https://your_kinde_domain.kinde.com
 KINDE_POST_CALLBACK_URL=exp://your_machine_ip:your_machine_port // f.e: exp://127.0.0.1:19000
@@ -198,7 +300,7 @@ You’ll need to create a new instance of the Kinde Auth client object. Please e
 
 ```javascript
 ...
-import { KindeSDK } from '@kinde-oss/react-native-sdk';
+import { KindeSDK } from '{{{projectName}}}';
 ...
 
 ...
@@ -223,75 +325,83 @@ As an example if you add buttons in your render as follows:
 ```
 
 Then define new functions that match for each button:
-**\*Note**: Make sure you've already defined KindeSDK as `client`\*
+_**Note**: Make sure you've already defined KindeSDK as `client`_
 
 ```javascript
 ...
-const handleSignUp = () => {
-  client.register();
+const handleSignUp = async () => {
+  const token = await client.register();
+  if (token) {
+    // User was authenticated
+  }
 };
 
-const handleSignIn = () => {
-  client.login();
+const handleSignIn = async () => {
+  const token = client.login();
+  if (token) {
+    // User was authenticated
+  }
 };
 ...
 ```
 
-### Handle redirect
+### ~~Handle redirect~~ [Deprecated]
 
-#### With React Native
-Once your user is redirected back to your app from Kinde, using the `getToken` method to get token instance from Kinde
+**_Note_: Since version 1.1, handling redirection is no longer necessary because the SDK authenticates by starting a web browser inside your app rather than using an external one. Details regarding implementations can be found at: [Full code sample for the authentication](#full-code-sample-for-the-authentication)**
+
+After the user logs in to Kinde, it will be redirected to your app via a deep link, which includes some information (e.g., code) as parameters, and then you need to call the `getToken` method to receive a token from Kinde. The SDK will store the token on the keychain. Now, the user will be authenticated without logging in again.
+
+##### ~~Handle redirect with React Native~~
 
 ```javascript
-const handleCallback = async (url: string) => {
-  const token = await client.getToken(url);
-  console.log('token here', token);
-};
+...
+import { Linking } from 'react-native';
+...
+
+const handleCallback = async (url) => {
+  try {
+    const token = await client.getToken(url);
+    console.log('token here', token);
+  } catch (e) {
+    // Perhaps the deep link is not from Kinde authentication, or something went wrong. Logging the error to see detail
+    console.error('ERR getToken', e);
+  }
+}
+
+const checkAuthenticate = async () => {
+  if (await client.isAuthenticated) { // Using `isAuthenticated` to check if the user is authenticated or not
+    // Need to implement, e.g: call an api,etc... In this case, we will get a token:
+    const token = await client.getToken();
+    console.log('token here', token);
+  } else {
+    // Need to implement, e.g: redirect user to sign in or sign up screens,etc...
+  }
+}
 
 useEffect(() => {
   Linking.getInitialURL()
-    .then((url) => {
+    .then(url => {
       if (url) {
-        handleCallback(url);
+        return handleCallback(url);
       }
+      checkAuthenticate();
     })
-    .catch((err) => console.error('An error occurred', err));
+    .catch(err => console.error('An error occurred', err));
 
-  Linking.addEventListener('url', (event) => {
+  const onChangeURL = (event: {url: string}) => {
     if (event.url) {
       handleCallback(event.url);
     }
-  });
+  };
+  Linking.addEventListener('url', onChangeURL);
+
+  return () => {
+    Linking.removeAllListeners('url');
+  };
 }, []);
 ```
 
-You can also get the current authentication status with `AuthStatus`:
-
-```javascript
-...
-import {..., AuthStatus ,...} from '@kinde-oss/react-native-sdk';
-...
-
-const handleCallback = async (url: string) => {
-  if (client.authStatus !== AuthStatus.UNAUTHENTICATED) {
-    const token = await client.getToken(url);
-    console.log('token here', token);
-  }
-};
-```
-
-Or simply use `isAuthenticated` from the SDK to determine whether the user is authenticated or not:
-
-```javascript
-const handleCallback = async (url: string) => {
-  if (client.isAuthenticated) {
-    const token = await client.getToken(url);
-    console.log('token here', token);
-  }
-};
-```
-
-#### With Expo
+##### ~~Handle redirect with Expo~~
 
 You must install `expo-linking`. This provides utilities for your app to interact with other installed apps using deep links. It also provides helper methods for constructing and parsing deep links into your app. This module is an extension of the React Native [Linking](https://reactnative.dev/docs/linking.html) module.
 
@@ -309,16 +419,35 @@ const client = new KindeSDK(
 
 const url = Linking.useURL();
 
+const checkAuthenticate = async () => {
+  if (await client.isAuthenticated) { // Using `isAuthenticated` to check if the user is authenticated or not
+    // Need to implement, e.g: call an api,etc... In this case, we will get a token:
+    const token = await client.getToken();
+    console.log('token here', token);
+  } else {
+    // Need to implement, e.g: redirect user to sign in or sign up screens,etc...
+  }
+}
+
+useEffect(() => {
+  checkAuthenticate();
+}, []);
+
+const handleCallback = async (url) => {
+  try {
+    const token = await client.getToken(url);
+    console.log('token here', token);
+  } catch (e) {
+    // Perhaps the deep link is not from Kinde authentication, or something went wrong. Logging the error to see detail
+    console.error('ERR getToken', e);
+  }
+}
+
 useEffect(() => {
   if (url) {
     handleCallback(url);
   }
 }, [url]);
-
-const handleCallback = async (url) => {
-  const token = await client.getToken(url);
-  console.log('token here', token);
-}
 ```
 
 ### Logout
@@ -326,46 +455,57 @@ const handleCallback = async (url) => {
 This is implemented in much the same way as logging in or registering. The Kinde SPA client comes with a logout method
 
 ```javascript
-const handleLogout = () => {
-  client.logout();
+const handleLogout = async () => {
+    const loggedOut = client.logout();
+    if (loggedOut) {
+        // User was logged out
+    }
+};
+```
+
+### Full code sample for the authentication
+
+```javascript
+const checkAuthenticate = async () => {
+    // Using `isAuthenticated` to check if the user is authenticated or not
+    if (await client.isAuthenticated) {
+        // Need to implement, e.g: call an api, etc...
+    } else {
+        // Need to implement, e.g: redirect user to sign in, etc..
+    }
+};
+useEffect(() => {
+    checkAuthenticate();
+}, []);
+const handleSignIn = async () => {
+    const token = await client.login();
+    if (token) {
+        // Need to implement, e.g: call an api, etc...
+    }
+};
+const handleSignUp = async () => {
+    const token = await client.register();
+    if (token) {
+        // Need to implement, e.g: call an api, etc...
+    }
+};
+const handleLogout = async () => {
+    const isLoggedOut = await client.logout();
+    if (isLoggedOut) {
+        // Need to implement, e.g: redirect user to login screen, etc...
+    }
 };
 ```
 
 ### Get user information
 
-**\*Note warning:** Before you call the API, please make sure that you've already authenticated. If not, errors will appear there.\*
-
-To access the user information, {{#apiInfo}}{{#apis}}{{#-first}}{{#operations}}{{#operation}}{{#-first}}use the `{{{classname}}}`, `ApiClient` classes exported from `{{projectName}}`, then call the `{{{operationId}}}` method of `{{{classname}}}` instance
+To access the user information, use the `getUserDetails` helper function:
 
 ```javascript
-...
-import { ..., {{{classname}}}, ApiClient, ... } from '@kinde-oss/react-native-sdk';
-...
-
-const getUserProfile = () => {
-  const config = new ApiClient.Configuration({
-    basePath: KINDE_ISSUER_URL,
-  });
-  const apiInstance = new {{{classname}}}(config)
-  {{#hasParams}}
-  {{#requiredParams}}
-  var {{{paramName}}} = {{{example}}}; // {{=< >=}}{<&dataType>}<={{ }}=> {{{description}}}
-  {{/requiredParams}}
-  {{#optionalParams}}
-  {{#-first}}
-  var opts = {
-  {{/-first}}
-    '{{{paramName}}}': {{{example}}}{{^-last}},{{/-last}} // {{=< >=}}{<&dataType>}<={{ }}=> {{{description}}}
-  {{#-last}}
-  };
-  {{/-last}}
-  {{/optionalParams}}
-  {{/hasParams}}
-  const data = await apiInstance.{{{operationId}}}({{#requiredParams}}{{{paramName}}}{{^-last}}, {{/-last}}{{/requiredParams}}{{#optionalParams}}{{#-last}}{{#hasRequiredParams}}, {{/hasRequiredParams}}opts{{/-last}}{{/optionalParams}});
-  {{#returnType}}console.log('API called successfully. Returned data: ' + data);{{/returnType}}{{^returnType}}console.log('API called successfully.');{{/returnType}}
-}
+const userProfile = await client.getUserDetails();
+console.log(userProfile);
+// output: {"given_name":"Dave","id":"abcdef","family_name":"Smith","email":"dave@smith.com"}
 ```
-{{/-first}}{{/operation}}{{/operations}}{{/-first}}{{/apis}}{{/apiInfo}}
 
 ### View users in Kinde
 
@@ -389,58 +529,85 @@ const permissions = [
     'delete:tasks'
 ];
 ```
+
 We provide helper functions to more easily access permissions:
+
 ```javascript
-client.getPermission("create:todos");
+await client.getPermission('create:todos');
 // {orgCode: "org_1234", isGranted: true}
 
-client.getPermissions();
+await client.getPermissions();
 // {orgCode: "org_1234", permissions: ["create:todos", "update:todos", "read:todos"]}
 ```
+
 A practical example in code might look something like:
-```
-if (client.getPermission("create:todos").isGranted) {
+
+```javascript
+if ((await client.getPermission('create:todos')).isGranted) {
     // show Create Todo button in UI
 }
 ```
+
 ### Audience
+
 An `audience` is the intended recipient of an access token - for example the API for your application. The audience argument can be passed to the Kinde client to request an audience be added to the provided token.
 
 The audience of a token is the intended recipient of the token.
+
 ```javascript
-const client = new KindeSDK(YOUR_KINDE_ISSUER, YOUR_KINDE_REDIRECT_URI, YOUR_KINDE_CLIENT_ID, YOUR_KINDE_LOGOUT_REDIRECT_URI, YOUR_SCOPES, 
-  {
-    audience: 'api.yourapp.com'
-  });
+const client = new KindeSDK(
+    YOUR_KINDE_ISSUER,
+    YOUR_KINDE_REDIRECT_URI,
+    YOUR_KINDE_CLIENT_ID,
+    YOUR_KINDE_LOGOUT_REDIRECT_URI,
+    YOUR_SCOPES,
+    {
+        audience: 'api.yourapp.com'
+    }
+);
 ```
+
 For details on how to connect, see [Register an API](https://kinde.com/docs/developer-tools/register-an-api/)
 
 ### Overriding scope
+
 By default the KindeSDK SDK requests the following scopes:
-- profile
-- email
-- offline
-- openid
+
+-   profile
+-   email
+-   offline
+-   openid
 
 You can override this by passing scope into the KindeSDK
+
 ```javascript
-const client = new KindeSDK(YOUR_KINDE_ISSUER, YOUR_KINDE_REDIRECT_URI, YOUR_KINDE_CLIENT_ID, YOUR_KINDE_LOGOUT_REDIRECT_URI, "profile email offline openid");
+const client = new KindeSDK(
+    YOUR_KINDE_ISSUER,
+    YOUR_KINDE_REDIRECT_URI,
+    YOUR_KINDE_CLIENT_ID,
+    YOUR_KINDE_LOGOUT_REDIRECT_URI,
+    'profile email offline openid'
+);
 ```
 
 ### Getting claims
+
 We have provided a helper to grab any claim from your id or access tokens. The helper defaults to access tokens:
+
 ```javascript
-client.getClaim("aud");
+await client.getClaim('aud');
 // ["api.yourapp.com"]
 
-client.getClaim("given_name", "id_token");
+await client.getClaim('given_name', 'id_token');
 // "David"
 ```
 
-
 ### Organizations Control
+
 #### Create an organization
+
 To have a new organization created within your application, you will need to run a similar function to below:
+
 ```javascript
 <Button title="Create Organization" onPress={handleCreateOrg} />
 ```
@@ -459,35 +626,37 @@ client.createOrg({org_name: 'Your Organization'});
 ```
 
 #### Sign in and sign up to organizations
+
 Kinde has a unique code for every organization. You’ll have to pass this code through when you register a new user. Example function below:
+
 ```javascript
-client.register({org_code: 'your_org_code'});
+client.register({ org_code: 'your_org_code' });
 ```
+
 If you want a user to sign in into a particular organization, pass this code along with the sign in method.
+
 ```javascript
-client.login({org_code: 'your_org_code'});
+client.login({ org_code: 'your_org_code' });
 ```
 
 Following authentication, Kinde provides a json web token (jwt) to your application. Along with the standard information we also include the org_code and the permissions for that organization (this is important as a user can belong to multiple organizations and have different permissions for each). Example of a returned token:
+
 ```json
 {
-	"aud": [],
-	"exp": 1658475930,
-	"iat": 1658472329,
-	"iss": "https://your_subdomain.kinde.com",
-	"jti": "123457890",
-	"org_code": "org_1234",
-	"permissions": ["read:todos", "create:todos"],
-	"scp": [
-		"openid",
-		"profile",
-		"email",
-		"offline"
-	],
-	"sub": "kp:123457890"
+    "aud": [],
+    "exp": 1658475930,
+    "iat": 1658472329,
+    "iss": "https://your_subdomain.kinde.com",
+    "jti": "123457890",
+    "org_code": "org_1234",
+    "permissions": ["read:todos", "create:todos"],
+    "scp": ["openid", "profile", "email", "offline"],
+    "sub": "kp:123457890"
 }
 ```
+
 The `id_token` will also contain an array of Organizations that a user belongs to - this is useful if you wanted to build out an organization switcher for example.
+
 ```json
 {
   ...
@@ -495,31 +664,47 @@ The `id_token` will also contain an array of Organizations that a user belongs t
   ...
 }
 ```
+
 There are two helper functions you can use to extract information:
+
 ```javascript
-client.getOrganization();
+await client.getOrganization();
 // {orgCode: "org_1234"}
 
-client.getUserOrganizations();
+await client.getUserOrganizations();
 // {orgCodes: ["org_1234", "org_abcd"]}
 ```
 
 ## Token Storage
-Once the user has successfully authenticated, you'll have a JWT and possibly a refresh token that should be stored securely.
 
-Recommendations on secure token storage can be found [here](https://reactnative.dev/docs/security#storing-sensitive-info).
+Once the user has successfully authenticated, you'll have a JWT and a refresh token and that has been stored securely.
+E.g., using the `getAccessToken` method of `the Storage` class to get an access token:
+
+```javascript
+...
+import Storage from '{{{projectName}}}'
+...
+
+
+const accessToken = await Storage.getAccessToken();
+console.log('access_token', accessToken);
+```
+
+We're using the [react-native-keychain](https://www.npmjs.com/package/react-native-keychain) for `React Native` and the [expo-secure-store](https://www.npmjs.com/package/expo-secure-store) for `Expo`.
+The storage handler can be found at: [Storage class](./dist/SDK/Storage/index.d.ts)
 
 ## How to run test
 
-The simplest way to run the JavaScript test suite is by using the following command at the root of your React Native checkout:
+The simplest way to run the test suite is by using the following command at the root of your React Native:
 
 ```bash
-npm test
+npm run test
 ```
 
 _Note: Ensure you have already run `npm install` before_
 
 ## SDK API Reference
+
 | Property                        | Type    | Is required | Default                      | Description                                                                                                       |
 | ------------------------------- | ------- | ----------- | ---------------------------- | ----------------------------------------------------------------------------------------------------------------- |
 | issuer                          | string  | Yes         |                              | Either your Kinde instance url or your custom domain. e.g [https://yourapp.kinde.com](https://yourapp.kinde.com/) |
@@ -530,25 +715,72 @@ _Note: Ensure you have already run `npm install` before_
 | additionalParameters            | object  | No          | {}                           | Additional parameters that will be passed in the authorization request                                            |
 | additionalParameters - audience | string  | No          |                              | The audience claim for the JWT                                                                                    |
 
-## KindeSDK methods
+## KindeSDK Methods
 
-| Property             | Description                                                                                       | Arguments                           | Usage                                                                                                                                                                      | Sample output                                                                                                                                                                                                                |
-| -------------------- | ------------------------------------------------------------------------------------------------- | ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| login                | Constructs redirect url and sends user to Kinde to sign in                                        | {<br>org_code?: string<br>}         | kinde.login(); or<br>kinde.login({org_code: 'your organization code'}) // Allow `org_code` to be provided if a specific org is to be signed up into.                     |                                                                                                                                                                                                                              |
-| register             | Constructs redirect url and sends user to Kinde to sign up                                        | {<br>org_code?: string<br>}         | kinde.register(); or<br>kinde.register({org_code: 'your organization code'}) // Allow `org_code` to be provided if a specific org is to be registered into.              |                                                                                                                                                                                                                              |
-| logout               | Logs the user out of Kinde                                                                        |                                     | kinde.logout();                                                                                                                                                            |                                                                                                                                                                                                                              |
-| getToken             | Returns the raw Access token from URL after logged from Kinde                                     | url: string                         | kinde.getToken(url);                                                                                                                                                       | {<br>"access_token": "eyJhbGciOiJSUzI...",<br>"expires_in": 86400,<br>"id_token": "eyJhbGciOiJSU...",<br>"refresh_token": "yXI1bFQKbXKLD7AIU...",<br>"scope": "openid profile email offline",<br>"token_type": "bearer"<br>} |
-| createOrg            | Constructs redirect url and sends user to Kinde to sign up and create a new org for your business | {<br>org_name?: string<br>}         | kinde.createOrg(); or<br>kinde.createOrg({org_name: 'your organization name'}); // Allow `org_name` to be provided if you want a specific organization name when you create |                                                                                                                                                                                                                              |
-| getClaim             | Gets a claim from an access or id token                                                           | claim: string;<br>tokenKey?: string | kinde.getClaim('given_name', 'id_token');                                                                                                                                  | "David"                                                                                                                                                                                                                      |
-| getPermission        | Returns the state of a given permission                                                           | key: string                         | kinde.getPermission('read:todos');                                                                                                                                         | {"orgCode":"org_1234","isGranted":true}                                                                                                                                                                                      |
-| getPermissions       | Returns all permissions for the current user for the organization they are logged into            |                                     | kinde.getPermissions();                                                                                                                                                    | {"orgCode":"org_1234","permissions":["create:todos","update:todos","read:todos"]}                                                                                                                                            |
-| getOrganization      | Get details for the organization your user is logged into                                         |                                     | kinde.getOrganization();                                                                                                                                                   | {"orgCode": "org_1234"}                                                                                                                                                                                                      |
-| getUserDetails       | Returns the profile for the current user                                                          |                                     | kinde.getUserDetails();                                                                                                                                                    | {"given_name":"Dave","id":"abcdef","family_name":"Smith","email":"dave@smith.com"}                                                                                                                                           |
-| getUserOrganizations | Gets an array of all organizations the user has access to                                         |                                     | kinde.getUserOrganizations();                                                                                                                                              | {"orgCodes":["org1​234","org5​678"]}                                                                                                                                                                                         |
+| Property | Description | Arguments | Usage | Sample output |
+| -------------------- | ------------------------------------------------------------------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| login | Constructs redirect url and sends user to Kinde to sign in | {<br>org_code?: string<br>} | await kinde.login(); or<br>await kinde.login({org_code: 'your organization code'}) // Allow org_code to be provided if a specific org is to be signed up into. | {<br>"access_token": "eyJhbGciOiJSUzI...",<br>"expires_in": 86400,<br>"id_token": "eyJhbGciOiJSU...",<br>"refresh_token": "yXI1bFQKbXKLD7AIU...",<br>"scope": "openid profile email offline",<br>"token_type": "bearer"<br>} |
+| register | Constructs redirect url and sends user to Kinde to sign up | {<br>org_code?: string<br>} | await kinde.register(); or<br>await kinde.register({org_code: 'your organization code'}) // Allow org_code to be provided if a specific org is to be registered into. | {<br>"access_token": "eyJhbGciOiJSUzI...",<br>"expires_in": 86400,<br>"id_token": "eyJhbGciOiJSU...",<br>"refresh_token": "yXI1bFQKbXKLD7AIU...",<br>"scope": "openid profile email offline",<br>"token_type": "bearer"<br>} |
+| logout | Logs the user out of Kinde | | await kinde.logout(); | true or false |
+| getToken | Returns the raw Access token from URL after logged from Kinde | url?: string | kinde.getToken(url); or<br>kinde.getToken(); // In this case, you have already authenticated before. Otherwise, an error will be thrown in here | {<br>"access_token": "eyJhbGciOiJSUzI...",<br>"expires_in": 86400,<br>"id_token": "eyJhbGciOiJSU...",<br>"refresh_token": "yXI1bFQKbXKLD7AIU...",<br>"scope": "openid profile email offline",<br>"token_type": "bearer"<br>} |
+| createOrg | Constructs redirect url and sends user to Kinde to sign up and create a new org for your business | {<br>org_name?: string<br>} | await kinde.createOrg(); or<br>await kinde.createOrg({org_name: 'your organization name'}); // Allow org_name to be provided if you want a specific organization name when you create | {<br>"access_token": "eyJhbGciOiJSUzI...",<br>"expires_in": 86400,<br>"id_token": "eyJhbGciOiJSU...",<br>"refresh_token": "yXI1bFQKbXKLD7AIU...",<br>"scope": "openid profile email offline",<br>"token_type": "bearer"<br>} |
+| getClaim | Gets a claim from an access or id token | claim: string;<br>tokenKey?: string | await kinde.getClaim('given_name', 'id_token'); | "David" |
+| getPermission | Returns the state of a given permission | key: string | await kinde.getPermission('read:todos'); | {"orgCode":"org_1234","isGranted":true} |
+| getPermissions | Returns all permissions for the current user for the organization they are logged into | | await kinde.getPermissions(); | {"orgCode":"org_1234","permissions":["create:todos","update:todos","read:todos"]} |
+| getOrganization | Get details for the organization your user is logged into | | await kinde.getOrganization(); | {"orgCode": "org_1234"} |
+| getUserDetails | Returns the profile for the current user | | await kinde.getUserDetails(); | {"given_name":"Dave","id":"abcdef","family_name":"Smith","email":"dave@smith.com"} |
+| getUserOrganizations | Gets an array of all organizations the user has access to | | await kinde.getUserOrganizations(); | {"orgCodes":["org1​234","org5​678"]} |
+| isAuthenticated | Return the boolean to demonstrate whether the user is authenticated or not. | | await kinde.isAuthenticate | true or false |
 
 ## General tips
+
+### Building Issues
+
+##### `'value'` is unavailable: introduced in iOS 12.0
+If you got the error `'value' is unavailable: introduced in iOS 12.0` when trying to build the app, you can follow the below steps to fix that:
+
+1. In your Xcode project navigator, select `Pods`
+2. Under Targets, select `React-Codegen`
+3. Set the window to `Build Settings`
+4. Under `Deployment`, set `iOS Deployment Target` to `12.4`
+5. Clean project and rebuild: `Product > Clean Build Folder, Product > Build`
+
+![screenshot](./assets/build-issue.png)
+
+##### Dependency `'androidx.browser:browser:1.6.0-beta01'` requires libraries and applications that depend on it to compile against version 34 or later of the Android APIs.
+
+The solution is add `androidXBrowser = "1.4.0"` in your project.
+
+
+```java
+// android/build.gradle
+buildscript {
+    ...
+    ext {
+        // ...
+        androidXBrowser = "1.4.0"
+        // ....
+    }
+    ...
+}
+```
+
+##### Duplicate class kotlin.collections.jdk8.CollectionsJDK8Kt found in modules jetified-kotlin-stdlib-1.8.10 (org.jetbrains.kotlin:kotlin-stdlib:1.8.10) and jetified-kotlin-stdlib-jdk8-1.7.22 (org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.7.22)
+
+The solution is add `org.jetbrains.kotlin:kotlin-bom:1.8.0` dependency in your project.
+```java
+// android/app/build.grade
+dependencies {
+    ...
+    implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.8.0"))
+    ...
+}
+```
+### Caching Issues
+
 Sometimes there will be issues related to caching when you develop React Native.
 There are some recommendations for cleaning the cache:
+
 1. Remove `node_modules`, `yarn.lock` or `package-lock.json`
 2. Clean cache: `yarn cache clean` or `npm cache clean --force`
 3. Make sure you have changed values in `.env` file
@@ -556,39 +788,28 @@ There are some recommendations for cleaning the cache:
 5. Run Metro Bundler: `yarn start --reset-cache` or `npm start --reset-cache`
 
 Assume your project path is `<StarterKit_PATH>`.
+
 ##### With Android:
+
 1. Clean cache:
+
 ```bash
-cd <StarterKit_PATH>/android./gradlew clean
+cd <StarterKit_PATH>/android
+./gradlew clean
 ```
+
 2. Follow the steps in the above `General tips`.
 
 ##### With iOS:
+
 1. Follow the steps at the above `General tips`.
 2. Clean cache:
+
 ```bash
-cd <StarterKit_PATH>/rm -rf Pods && rm -rd Podfile.lock
+cd <StarterKit_PATH>/ios
+rm -rf Pods && rm Podfile.lock
 ```
+
 3. Clean build folders on Xcode.
 
 If you need any assistance with getting Kinde connected reach out to us at support@kinde.com.
-
-## How to run test
-The simplest way to run the JavaScript test suite is by using the following command at the root of your React Native checkout:
-```bash
-npm test
-```
-
-## Documentation for API Endpoints
-
-All URIs are relative to *{{basePath}}*
-
-Class | Method | HTTP request | Description
------------- | ------------- | ------------- | -------------
-{{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}*{{projectName}}.{{classname}}* | [**{{operationId}}**]({{apiDocPath}}{{classname}}.md#{{operationId}}) | **{{httpMethod}}** {{path}} | {{summary}}
-{{/operation}}{{/operations}}{{/apis}}{{/apiInfo}}
-
-## Documentation for Models
-
-{{#models}}{{#model}} - [{{projectName}}.{{classname}}]({{modelDocPath}}{{classname}}.md)
-{{/model}}{{/models}}
