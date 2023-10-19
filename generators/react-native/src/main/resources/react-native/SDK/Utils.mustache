@@ -1,10 +1,15 @@
 {{>licenseInfo}}
 
 import crypto, { LibWordArray } from 'crypto-js';
+import Constants, { ExecutionEnvironment } from 'expo-constants';
+import * as WebBrowser from 'expo-web-browser';
+import InAppBrowser from 'react-native-inappbrowser-reborn';
 import { InvalidTypeException } from '../common/exceptions/invalid-type.exception';
 import { PropertyRequiredException } from '../common/exceptions/property-required.exception';
 import { UnexpectedException } from '../common/exceptions/unexpected.exception';
+import { AuthBrowserOptions } from '../types/Auth';
 import { AdditionalParameters } from '../types/KindeSDK';
+import KindeSDK from './KindeSDK';
 import { AdditionalParametersAllow } from './constants';
 
 {{#emitJSDoc}}/**
@@ -139,4 +144,69 @@ export const addAdditionalParameters = (
         });
     }
     return target;
+};
+
+export const isExpoGo =
+    Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
+
+export const OpenWebInApp = async (
+    url: string,
+    kindeSDK: KindeSDK,
+    options?: AuthBrowserOptions
+) => {
+    try {
+        const response = await openWebBrowser(
+            url,
+            kindeSDK.redirectUri,
+            options || kindeSDK.authBrowserOptions
+        );
+        if (response.type === 'success' && response.url) {
+            return kindeSDK.getToken(response.url);
+        }
+        console.error(
+            'Something wrong when trying to authenticating. Reason: ',
+            response.type
+        );
+        return null;
+    } catch (error) {
+        if (error instanceof Error) {
+            console.error(
+                'Something wrong when trying to authenticating. Reason: ',
+                error.message
+            );
+        }
+        return null;
+    }
+};
+
+export const openWebBrowser = async (
+    url: string,
+    redirectUri: string,
+    options?: AuthBrowserOptions
+) => {
+    if (isExpoGo) {
+        return WebBrowser.openAuthSessionAsync(url, redirectUri);
+    }
+    if (InAppBrowser) {
+        if (await InAppBrowser.isAvailable()) {
+            return InAppBrowser.openAuth(url, redirectUri, {
+                ephemeralWebSession: false,
+                showTitle: false,
+                enableUrlBarHiding: true,
+                enableDefaultShare: false,
+                ...options
+            });
+        }
+    }
+    throw new Error('Not found web browser');
+};
+
+export const convertObject2FormData = (obj: Record<string, any>) => {
+    const formData = new FormData();
+
+    Object.keys(obj).forEach((k) => {
+        formData.append(k, obj[k]);
+    });
+
+    return formData;
 };
